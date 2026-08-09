@@ -35,10 +35,14 @@ is collapsed and re-wrapped rather than having its existing breaks respected.
   `deleteRange` + `insertText` pair lands as two entries.
 - **Width is hardcoded** at 80 (`REWRAP_WIDTH` in `rewrap.ts`). It does not
   read `editor.page_width`.
-- **No keybinding.** Binding a plugin command from `config.json` needs the
-  `plugin_action` action, whose `args` shape isn't documented and is used by no
-  keymap in the fresh binary; `{"name": "..."}` was a guess and did not work.
-  The Keybinding Editor can bind it interactively.
+- ~~No keybinding.~~ **Solved.** Bind the *handler* name directly as the
+  action string — fresh's `from_str` turns any unrecognized action into
+  `PluginAction(s)`, which dispatches the `registerHandler` name (not the
+  command label, and no `plugin_action` indirection):
+
+  ```json
+  {"key": "q", "modifiers": ["alt"], "action": "rewrap_paragraph", "when": "normal"}
+  ```
 
 ## Tested
 
