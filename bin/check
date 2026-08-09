@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Validate every package in this monorepo.
+#
+# Each top-level directory containing a package.json is one installable
+# package, selected at install time by a URL fragment:
+#
+#     https://github.com/chrismo/fresh-plugins#<dir>
+#
+# Checks the manifest fields fresh needs, that the entry file exists, and that
+# the directory name matches the package name — a mismatch installs fine but
+# makes the #fragment misleading.
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+fail=0
+found=0
+
+note() { printf '  %s\n' "$*"; }
+bad() { printf '  FAIL: %s\n' "$*"; fail=1; }
+
+for manifest in */package.json; do
+  dir="$(dirname "$manifest")"
+  found=$((found + 1))
+  printf '%s\n' "$dir"
+
+  if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$manifest"; then
+    bad "$manifest is not valid JSON"
+    continue
+  fi
+
+  # Pull the fields we care about in one pass. Emitted one per line in a fixed
+  # order and read positionally — no eval, so nothing in a manifest can be
+  # interpreted as shell.
+  {
+    read -r name
+    read -r version
+    read -r ptype
+    read -r entry
+    read -r minver
+    read -r desc
+    read -r license
+  } < <(python3 - "$manifest" <<'PY'
+import json, sys
+m = json.load(open(sys.argv[1]))
+fresh = m.get("fresh") or {}
+for val in (
+    m.get("name", ""),
+    m.get("version", ""),
+    m.get("type", ""),
+    fresh.get("entry", ""),
+    fresh.get("min_version", ""),
+    m.get("description", ""),
+    m.get("license", ""),
+):
+    # Newline-separated, so collapse any newlines inside a value.
+    print(" ".join(str(val).split()))
+PY
+  )
+
+  [ -n "$name" ] || bad "missing name"
+  [ -n "$version" ] || bad "missing version"
+  [ -n "$desc" ] || bad "missing description"
+  [ -n "$license" ] || bad "missing license"
+  [ -n "$minver" ] || bad "missing fresh.min_version"
+
+  if [ "$ptype" != "plugin" ] && [ "$ptype" != "theme" ] && [ "$ptype" != "language" ]; then
+    bad "type '$ptype' is not plugin|theme|language"
+  fi
+
+  if [ -z "$entry" ]; then
+    bad "missing fresh.entry"
+  elif [ ! -f "$dir/$entry" ]; then
+    bad "fresh.entry '$entry' does not exist in $dir/"
+  else
+    note "entry $entry ok"
+  fi
+
+  if [ "$name" != "$dir" ]; then
+    bad "name '$name' != directory '$dir' (the #fragment is the directory)"
+  fi
+
+  note "v$version, fresh >= $minver"
+done
+
+if [ "$found" -eq 0 ]; then
+  echo "no packages found (expected <dir>/package.json)" >&2
+  exit 1
+fi
+
+echo
+if [ "$fail" -eq 0 ]; then
+  echo "$found package(s) ok"
+else
+  echo "problems found" >&2
+fi
+exit "$fail"
