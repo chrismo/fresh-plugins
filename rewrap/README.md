@@ -41,7 +41,7 @@ is collapsed and re-wrapped rather than having its existing breaks respected.
   command label, and no `plugin_action` indirection):
 
   ```json
-  {"key": "q", "modifiers": ["alt"], "action": "rewrap_paragraph", "when": "normal"}
+  {"key": "w", "modifiers": ["ctrl","alt","shift"], "action": "rewrap_paragraph", "when": "normal"}
   ```
 
 ## Tested
