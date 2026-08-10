@@ -19,7 +19,29 @@ via `Package: Install from URL` in the command palette.
 ## Use
 
 Put the cursor anywhere in a paragraph and run **Rewrap Paragraph** from the
-palette. The paragraph is whatever is delimited by blank lines.
+palette.
+
+### Binding a key
+
+**Installing this does not give you a keybinding.** fresh has no mechanism for
+a plugin to ship one: the package manifest has no keybindings field
+(`contributes` carries only `languages` and `grammars`), and
+`editor.registerCommand` takes no key. A plugin contributes a *command*; the
+key is always the user's.
+
+Add it to the `keybindings` array in `~/.config/fresh/config.json` yourself.
+Bind the **handler** name as the action string — any unrecognized action
+becomes `PluginAction(s)`, which dispatches the `registerHandler` name:
+
+```json
+{"key": "w", "modifiers": ["ctrl","alt","shift"],
+ "action": "rewrap_paragraph", "args": {}, "when": "normal"}
+```
+
+That chord is the non-Cmd alternate the JetBrains **WrapToColumn** plugin
+ships, so it may already be in your fingers. Any free chord works. Prefer a
+multi-modifier one — plain `alt+<letter>` is scarce real estate in a terminal
+keymap, and on macOS several of them never arrive intact. The paragraph is whatever is delimited by blank lines.
 
 It preserves leading indentation and hang-indents continuation lines under list
 markers — `-`, `*`, `+`, `1.`, `1)`, `>`. Headings (`#`) are deliberately not
