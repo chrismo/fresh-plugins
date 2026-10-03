@@ -50,7 +50,7 @@ registerHandler("rewrap_paragraph", async function () {
     editor.insertText(id, from, r.wrapped);
 
     if (sweep) {
-      // Meant to collapse the stale selection; observed to stretch it instead.
+      // Collapses the now-stale selection.
       editor.setBufferCursor(id, from + editor.utf8ByteLength(r.wrapped));
       editor.setStatus(
         "Rewrapped " + r.paragraphs + " paragraph(s) at width " + REWRAP_WIDTH,

@@ -69,9 +69,6 @@ keymap, and on macOS several of them never arrive intact.
 - **A heading with no blank line after it** joins the paragraph below when
   that paragraph is rewrapped — same as before selections existed, but a sweep
   makes it easier to hit.
-- **The selection stretches after a sweep.** `setBufferCursor` moves the
-  cursor to the end of the rewrapped text but keeps the selection's anchor,
-  so the selection grows to match instead of clearing.
 - **Multi-cursor** uses the primary cursor's selection only.
 - **Width is hardcoded** at 80 (`REWRAP_WIDTH` in `rewrap.ts`). It does not
   read `editor.page_width`.
@@ -108,4 +105,5 @@ any paragraph containing a multi-byte character.
 
 Both paths have been exercised by hand in fresh 0.5.1, including a sweep
 across many paragraphs of real prose: every touched paragraph rewrapped, none
-outside the selection changed, and the `./lib/` import loads.
+outside the selection changed, and the `./lib/` import loads. Afterwards the
+selection is cleared and the cursor sits at the end of the rewrapped text.
