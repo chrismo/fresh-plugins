@@ -9,7 +9,7 @@
   "repository": "https://github.com/chrismo/fresh-plugins",
   "keywords": ["rewrap", "reflow", "wrap", "fill-paragraph", "markdown", "prose"],
   "fresh": {
-    "min_version": "0.4.7",
+    "min_version": "0.5.2",
     "entry": "rewrap.ts"
   }
 }
