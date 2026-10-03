@@ -7,9 +7,10 @@ install time by a URL fragment.
 
 ## Plugins
 
-| Name                | Does                                          |
-|---------------------|-----------------------------------------------|
-| [rewrap](rewrap/)   | Hard-wrap the paragraph under the cursor      |
+| Name                          | Does                                          |
+|-------------------------------|-----------------------------------------------|
+| [rewrap](rewrap/)             | Hard-wrap the paragraph under the cursor      |
+| [git-changes](git-changes/)   | Dock listing the files git reports as changed |
 
 ## Installing
 
@@ -88,7 +89,19 @@ Most `editor.*` calls that ask the host something are async — `await` them.
 There's no harness for driving fresh headlessly. What works:
 
 - Keep the pure logic (parsing, formatting) in plain functions and exercise
-  them with `node` before wiring them to `editor.*`.
+  them with `node` before wiring them to `editor.*`. `git-changes` splits along
+  that line — `lib/status.ts` is `editor`-free and has real tests, while
+  `git-changes.ts` holds everything that can only be checked by hand:
+
+  ```sh
+  node --test git-changes/test/status.test.mjs
+  ```
+
+  Node 24 strips the TypeScript types on import, so the tests can import the
+  `.ts` directly with no build step.
+- `fresh --cmd script check <file>` parses a plugin and reports `ok`. Note it
+  does **not** resolve imports — a file importing a module that doesn't exist
+  still passes — so `ok` means "parses", not "works".
 - `fresh --cmd init check` syntax-checks `~/.config/fresh/init.ts` from any
   shell. It does report real errors with line:col — but it also prints `ok`
   when the file doesn't exist, so `ok` alone proves nothing.
