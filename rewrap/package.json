@@ -2,7 +2,7 @@
   "$schema": "https://fresh-editor.dev/schemas/package.schema.json",
   "name": "rewrap",
   "version": "0.1.0",
-  "description": "Hard-wrap the paragraph under the cursor to a fixed column",
+  "description": "Hard-wrap the paragraph under the cursor, or every paragraph in a selection, to a fixed column",
   "type": "plugin",
   "author": "chrismo",
   "license": "MIT",
